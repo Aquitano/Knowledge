@@ -1,0 +1,304 @@
+---
+import { GLOBAL } from '../lib/variables';
+import Anchor from './common/Anchor.astro';
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<div class="header-wrapper relative">
+    <header class="zag-bg zag-border-b zag-transition sticky top-0 z-10 w-full">
+        <div class="zag-bg zag-transition relative z-50 flex items-center py-4 sm:hidden">
+            <button class="px-4" aria-label="Toggle navigation menu">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 512 512"
+                    class="zag-fill zag-transition"
+                >
+                    <path d="M80 96h352v32H80zm0 144h352v32H80zm0 144h352v32H80z"></path>
+                </svg>
+            </button>
+        </div>
+        <nav
+            class="zag-bg zag-border-b zag-transition fixed inset-x-0 top-0 mx-auto flex h-auto max-w-5xl flex-col justify-between gap-8 py-4 text-xl sm:relative sm:flex-row sm:border-none sm:px-4 sm:pt-4"
+        >
+            <div class="mt-16 flex flex-col gap-4 px-4 font-mono font-medium sm:mt-0 sm:flex-row sm:px-0">
+                {Object.entries(GLOBAL.menu).map((i) => <Anchor url={i[1]}>{i[0]}</Anchor>)}
+            </div>
+
+            <!-- Search button in the center -->
+            <button
+                id="search-button"
+                class="font-display hidden items-center justify-center gap-2 rounded-md border border-neutral-300 bg-white/10 px-3 py-1.5 text-sm hover:bg-neutral-100 sm:flex dark:border-neutral-700 dark:bg-black/10 dark:hover:bg-neutral-800"
+                aria-label="Open search"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    class="zag-fill zag-transition"
+                >
+                    <path
+                        d="M21.172 24l-7.387-7.387c-1.388.874-3.024 1.387-4.785 1.387-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9c0 1.761-.514 3.398-1.387 4.785l7.387 7.387-2.828 2.828zm-12.172-8c3.859 0 7-3.14 7-7s-3.141-7-7-7-7 3.14-7 7 3.141 7 7 7z"
+                    ></path>
+                </svg>
+                <span>Search (Ctrl + K)</span>
+            </button>
+
+            <div class="flex justify-between gap-4 px-4 sm:px-0">
+                {
+                    GLOBAL.githubProfile && (
+                        <Anchor url={GLOBAL.githubProfile} aria-label="Zaggonaut GitHub Repository">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 24 24"
+                                class="zag-fill zag-transition"
+                            >
+                                <path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.52 2.34 1.07 2.91.83c.09-.65.35-1.09.63-1.34c-2.22-.25-4.55-1.11-4.55-4.92c0-1.11.38-2 1.03-2.71c-.1-.25-.45-1.29.1-2.64c0 0 .84-.27 2.75 1.02c.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02c.55 1.35.2 2.39.1 2.64c.65.71 1.03 1.6 1.03 2.71c0 3.82-2.34 4.66-4.57 4.91c.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2" />
+                            </svg>
+                        </Anchor>
+                    )
+                }
+                <ThemeToggle />
+                <!-- Mobile search icon -->
+                <button id="mobile-search-button" class="flex items-center sm:hidden" aria-label="Open search">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        class="zag-fill zag-transition"
+                        ><path
+                            d="M21.172 24l-7.387-7.387c-1.388.874-3.024 1.387-4.785 1.387-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9c0 1.761-.514 3.398-1.387 4.785l7.387 7.387-2.828 2.828zm-12.172-8c3.859 0 7-3.14 7-7s-3.141-7-7-7-7 3.14-7 7 3.141 7 7 7z"
+                        ></path></svg
+                    >
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search overlay container positioned outside the header -->
+    <div id="search-container" class="fixed inset-0 z-50 flex hidden items-start justify-center bg-black/50 pt-20">
+        <div class="mx-auto w-full max-w-2xl px-4">
+            <div id="search" class="rounded-lg bg-white p-4 shadow-lg dark:bg-neutral-800"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --pagefind-ui-scale: 1.025;
+        --pagefind-ui-primary: var(--link-color);
+        --pagefind-ui-text: var(--text-color);
+        --pagefind-ui-background: var(--background-color-darker);
+        --pagefind-ui-border: var(--background-color-brighter);
+        --pagefind-ui-tag: var(--background-color-brighter);
+        --pagefind-ui-font: var(--font-family);
+    }
+
+    /* Make search results container larger */
+    :global(.pagefind-ui__drawer) {
+        position: relative;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    /* Ensure search container takes full width */
+    #search-container #search {
+        width: 100%;
+    }
+
+    /* Style for search input to ensure it's accessible */
+    :global(.pagefind-ui__search-input) {
+        outline: none !important;
+    }
+
+    /* Center the search button on medium screens */
+    @media (min-width: 768px) {
+        nav {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        #search-button {
+            margin: 0 auto;
+        }
+    }
+</style>
+
+<script is:inline>
+    // Flag to track if search has been initialized
+    let searchInitialized = false;
+
+    function setupNavToggle() {
+        const button = document.querySelector('nav button');
+        const nav = document.querySelector('nav');
+        let isOpen = false;
+
+        function updateNavState() {
+            const isMobile = window.matchMedia('(max-width: 640px)').matches;
+            if (isMobile) {
+                nav.style.transform = isOpen ? 'translateY(0)' : 'translateY(-100%)';
+            } else {
+                nav.style.transform = 'translateY(0)';
+                isOpen = false;
+            }
+        }
+
+        function toggleNav() {
+            isOpen = !isOpen;
+            updateNavState();
+        }
+
+        button?.addEventListener('click', toggleNav);
+        window.addEventListener('resize', updateNavState);
+
+        updateNavState();
+    }
+
+    function setupSearchOverlay() {
+        const searchButton = document.getElementById('search-button');
+        const mobileSearchButton = document.getElementById('mobile-search-button');
+        const searchContainer = document.getElementById('search-container');
+
+        function openSearch() {
+            // Show the container
+            searchContainer.classList.remove('hidden');
+            searchContainer.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+
+            // Focus the search input with a slight delay
+            setTimeout(() => {
+                const searchInput = document.querySelector('.pagefind-ui__search-input');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }, 50);
+        }
+
+        function closeSearch(e) {
+            if (e.target === searchContainer) {
+                searchContainer.classList.add('hidden');
+                searchContainer.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        searchButton?.addEventListener('click', openSearch);
+        mobileSearchButton?.addEventListener('click', openSearch);
+        searchContainer?.addEventListener('click', closeSearch);
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !searchContainer.classList.contains('hidden')) {
+                searchContainer.classList.add('hidden');
+                searchContainer.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+        });
+
+        // Add keyboard shortcut (Ctrl + K)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                if (searchContainer.classList.contains('hidden')) {
+                    openSearch();
+                }
+            }
+        });
+    }
+
+    // Initialize PagefindUI
+    function initPagefind() {
+        // Prevent multiple initialization
+        if (searchInitialized || !window.PagefindUI) return;
+
+        // Clear any existing search UI before initializing
+        const searchElement = document.getElementById('search');
+        if (searchElement) {
+            searchElement.innerHTML = '';
+        }
+
+        new PagefindUI({
+            element: '#search',
+            debounceTimeoutMs: 500,
+            showEmptyFilters: false,
+            showSubResults: true,
+            autofocus: true,
+            processResult: (result) => {
+                // Process the result if needed
+                return result;
+            },
+            translations: {
+                placeholder: 'Search articles...',
+            },
+        });
+
+        // Set up a mutation observer to focus the search input when it's created
+        const searchContainer = document.getElementById('search-container');
+
+        if (searchElement) {
+            const observer = new MutationObserver((mutations) => {
+                const searchInput = document.querySelector('.pagefind-ui__search-input');
+                if (searchInput && searchContainer && !searchContainer.classList.contains('hidden')) {
+                    searchInput.focus();
+                    observer.disconnect();
+                }
+            });
+
+            observer.observe(searchElement, {
+                childList: true,
+                subtree: true,
+            });
+        }
+
+        // Mark as initialized
+        searchInitialized = true;
+    }
+
+    // Main setup function that handles all initializations
+    function setupAll() {
+        setupNavToggle();
+        setupSearchOverlay();
+
+        // Use requestIdleCallback or setTimeout to defer search initialization
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => initPagefind());
+        } else {
+            setTimeout(initPagefind, 100);
+        }
+    }
+
+    // For non-Astro sites or initial page load
+    document.addEventListener('DOMContentLoaded', setupAll);
+
+    // For Astro view transitions
+    document.addEventListener('astro:page-load', () => {
+        // Reset the flag for new page loads when using view transitions
+        searchInitialized = false;
+        setupAll();
+    });
+
+    // Helper function to focus search input
+    function focusSearchInput() {
+        const searchInput = document.querySelector('.pagefind-ui__search-input');
+        const searchContainer = document.getElementById('search-container');
+        if (searchInput && searchContainer && !searchContainer.classList.contains('hidden')) {
+            searchInput.focus();
+        }
+    }
+
+    // Additional event listener for after the UI is fully loaded
+    document.addEventListener('astro:after-swap', () => {
+        // Reset initialized state after page swap
+        searchInitialized = false;
+
+        // Try to focus with a short delay to ensure the UI has rendered
+        setTimeout(focusSearchInput, 100);
+    });
+</script>

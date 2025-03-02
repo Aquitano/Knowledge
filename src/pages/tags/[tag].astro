@@ -1,0 +1,79 @@
+---
+import { GLOBAL } from '../../lib/variables';
+import Layout from '../../layouts/Layout.astro';
+import ArticleSnippet from '../../components/ArticleSnippet.astro';
+import Section from '../../components/common/Section.astro';
+import { articles } from '../../lib/list';
+
+export function getStaticPaths() {
+    const allTags = new Set();
+
+    articles.forEach((article) => {
+        if (article.tags) {
+            article.tags.forEach((tag) => {
+                allTags.add(tag.toLowerCase());
+            });
+        }
+    });
+
+    return Array.from(allTags).map((tag) => ({
+        params: { tag },
+    }));
+}
+
+const { tag } = Astro.params;
+const filteredArticles = articles.filter((article) => article.tags?.some((t) => t.toLowerCase() === tag));
+---
+
+<Layout>
+    <Fragment slot="head">
+        <title>Articles tagged "{tag}" • {GLOBAL.username}</title>
+        <meta name="description" content={`Explore articles about ${tag} from ${GLOBAL.username}'s knowledge base.`} />
+        <meta property="og:title" content={`Articles tagged "${tag}" • ${GLOBAL.username}`} />
+        <meta
+            property="og:description"
+            content={`Explore articles about ${tag} from ${GLOBAL.username}'s knowledge base.`}
+        />
+        <meta property="og:image" content={`${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+        <meta property="og:url" content={`${GLOBAL.rootUrl}/tags/${tag}`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`Articles tagged "${tag}" • ${GLOBAL.username}`} />
+        <meta
+            name="twitter:description"
+            content={`Explore articles about ${tag} from ${GLOBAL.username}'s knowledge base.`}
+        />
+        <meta name="twitter:image" content={`${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+        <meta http-equiv="content-language" content="en" />
+        <meta name="language" content="English" />
+        <link rel="canonical" href={`${GLOBAL.rootUrl}/tags/${tag}`} />
+    </Fragment>
+    <Section class="my-8">
+        <div class="flex items-center justify-between pt-8 pb-16">
+            <div>
+                <h1 class="font-display text-3xl leading-loose sm:text-4xl">
+                    Articles tagged: <span class="text-primary">{tag}</span>
+                </h1>
+                <p class="text-neutral-600 dark:text-neutral-400">
+                    Found {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''}
+                </p>
+            </div>
+            <a href="/" class="text-primary hover:underline"> Back to all articles </a>
+        </div>
+        <ul>
+            {
+                filteredArticles.map((article) => (
+                    <li>
+                        <ArticleSnippet
+                            title={article.title}
+                            description={article.description}
+                            duration={`${article.time} min`}
+                            url={article.filename}
+                            timestamp={article.timestamp}
+                            tags={article.tags}
+                        />
+                    </li>
+                ))
+            }
+        </ul>
+    </Section>
+</Layout>

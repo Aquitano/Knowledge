@@ -1,0 +1,42 @@
+---
+import { processArticleDate } from '../lib/utils';
+import Anchor from './common/Anchor.astro';
+
+export type Props = {
+    title: string;
+    description: string;
+    url: string;
+    duration?: string;
+    timestamp?: string;
+    tags?: string[];
+};
+
+const { title, description, url, duration, timestamp, tags } = Astro.props;
+---
+
+<div class="zag-text zag-transition flex flex-col gap-3 pb-8">
+    <Anchor url={url} class="text-xl">
+        {title}
+    </Anchor>
+    <p class="">
+        {description}
+    </p>
+    <div class="zag-muted zag-transition flex items-center justify-between">
+        {timestamp ? <p>{processArticleDate(timestamp)}</p> : null}
+        {duration ? <p>{duration}</p> : null}
+    </div>
+    {
+        tags && tags.length > 0 && (
+            <div class="mt-2 flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                    <a
+                        href={`/tags/${tag.toLowerCase()}`}
+                        class="hover:bg-primary/20 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary rounded-md bg-neutral-100 px-2 py-1 text-xs transition-colors dark:bg-neutral-800"
+                    >
+                        {tag}
+                    </a>
+                ))}
+            </div>
+        )
+    }
+</div>
