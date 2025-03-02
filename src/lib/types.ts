@@ -1,11 +1,11 @@
-export type ArticleFrontmatter = {
+export interface ArticleFrontmatter {
     /**
      * The title of the article
      */
     title: string;
 
     /**
-     * THe summary description of the article
+     * The summary description of the article
      */
     description: string;
 
@@ -18,12 +18,12 @@ export type ArticleFrontmatter = {
     /**
      * The estimated time to read the article in minutes
      */
-    time: number;
+    time?: number;
 
     /**
      * Whether the article should be featured on the homepage
      */
-    featured: boolean;
+    featured?: boolean;
 
     /**
      * The timestamp the article was published in W3C format
@@ -32,7 +32,31 @@ export type ArticleFrontmatter = {
 
     /**
      * The URL of the article on the website
-     * (eg. https://zaggonaut.dev/blog/my-article)
      */
     filename: string;
-};
+
+    /**
+     * The author of the article
+     */
+    author?: string;
+
+    /**
+     * The author's avatar URL
+     */
+    avatar?: string;
+
+    /**
+     * The article's cover image URL
+     */
+    cover?: string;
+
+    /**
+     * The article's cover image credit
+     */
+    coverCredit?: string;
+
+    /**
+     * Whether the article is a draft
+     */
+    draft?: boolean;
+}

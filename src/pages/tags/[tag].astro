@@ -25,7 +25,10 @@ const { tag } = Astro.params;
 const filteredArticles = articles.filter((article) => article.tags?.some((t) => t.toLowerCase() === tag));
 ---
 
-<Layout>
+<Layout
+    title={`Articles tagged "${tag}" • ${GLOBAL.username}`}
+    description={`Explore articles about ${tag} from ${GLOBAL.username}'s knowledge base.`}
+>
     <Fragment slot="head">
         <title>Articles tagged "{tag}" • {GLOBAL.username}</title>
         <meta name="description" content={`Explore articles about ${tag} from ${GLOBAL.username}'s knowledge base.`} />

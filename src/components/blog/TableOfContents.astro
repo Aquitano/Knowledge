@@ -1,0 +1,76 @@
+---
+interface Props {
+    headings: Array<{
+        depth: number;
+        slug: string;
+        text: string;
+    }>;
+}
+
+const { headings } = Astro.props;
+const toc = headings.filter((heading) => heading.depth <= 3);
+---
+
+{
+    toc.length > 0 && (
+        <div class="mb-8 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <h2 class="mb-3 text-sm font-semibold">Table of Contents</h2>
+            <nav class="toc text-sm">
+                <ul class="flex flex-col gap-2">
+                    {toc.map((heading) => (
+                        <li class={`toc-item level-${heading.depth}`}>
+                            <a
+                                href={`#${heading.slug}`}
+                                class="hover:text-primary dark:hover:text-primary block text-neutral-600 transition-colors hover:underline dark:text-neutral-400"
+                                style={{ paddingLeft: `${(heading.depth - 2) * 1.25}rem` }}
+                            >
+                                {heading.depth > 2 && (
+                                    <span class="mr-1 text-neutral-400 dark:text-neutral-600">•</span>
+                                )}
+                                <span>{heading.text}</span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </div>
+    )
+}
+
+<style>
+    .toc-item.level-1 {
+        font-weight: 500;
+    }
+
+    .toc-item.level-3 {
+        font-size: 0.875rem;
+    }
+</style>
+
+<script>
+    // Highlight active section in TOC based on scroll position
+    document.addEventListener('astro:page-load', () => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    const id = entry.target.getAttribute('id');
+                    if (entry.isIntersecting) {
+                        document.querySelectorAll('.toc-item a').forEach((link) => {
+                            link.classList.remove('font-medium', 'text-primary', 'underline');
+                        });
+                        const activeLink = document.querySelector(`.toc-item a[href="#${id}"]`);
+                        if (activeLink) {
+                            activeLink.classList.add('font-medium', 'text-primary', 'underline');
+                        }
+                    }
+                });
+            },
+            { rootMargin: '0px 0px -80% 0px' },
+        );
+
+        // Track all headings that have an `id` applied
+        document.querySelectorAll('h1[id], h2[id], h3[id], h4[id]').forEach((heading) => {
+            observer.observe(heading);
+        });
+    });
+</script>

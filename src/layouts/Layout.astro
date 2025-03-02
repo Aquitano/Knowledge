@@ -3,27 +3,75 @@ import { ClientRouter } from 'astro:transitions';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import '../styles/global.css';
+import { GLOBAL } from '../lib/variables';
+
+interface Props {
+    title?: string;
+    description?: string;
+}
+
+const { title: providedTitle, description = GLOBAL.longDescription } = Astro.props;
+const title = providedTitle ?? GLOBAL.shortDescription;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
+
+        <!-- Primary Meta Tags -->
+        <title>{title}</title>
+        <meta name="title" content={title} />
+        <meta name="description" content={description} />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={`${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={canonicalURL} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+        <meta property="twitter:image" content={`${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+
+        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net" />
         <link
             href="https://fonts.bunny.net/css?family=ibm-plex-mono:400,400i,500,500i,600,600i,700,700i"
             rel="stylesheet"
         />
+
+        <!-- Search -->
         <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+
+        <!-- Theme handling -->
+        <script is:inline>
+            // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+            if (
+                localStorage.getItem('theme') === 'dark' ||
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+
         <ClientRouter />
         <slot name="head" />
     </head>
-    <body class="zag-bg zag-text zag-transition font-mono">
+    <body class="zag-bg zag-text zag-transition flex min-h-screen flex-col font-mono">
         <Header />
-        <main>
+        <main class="flex-1">
             <slot />
         </main>
         <Footer />

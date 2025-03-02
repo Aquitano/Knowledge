@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises';
-import { GLOBAL } from './variables';
 
 type MarkdownData<T extends object> = {
     frontmatter: T;
@@ -22,10 +21,10 @@ export const processContentInDir = async <T extends object, K>(
     processFn: (data: MarkdownData<T>) => K,
     dir: string = process.cwd(),
 ) => {
-    const files = await fs.readdir(dir + `/src/pages/${contentType}`);
+    const files = await fs.readdir(`${dir}/src/pages/${contentType}`);
     const markdownFiles = files.filter((file: string) => file.endsWith('.md')).map((file) => file.split('.')[0]);
     const readMdFileContent = async (file: string) => {
-        const content = import.meta.glob(`/src/pages/blog/*.md`)[`/src/pages/blog/${file}.md`]();
+        const content = import.meta.glob('/src/pages/blog/*.md')[`/src/pages/blog/${file}.md`]();
         const data = (await content) as {
             frontmatter: T;
             file: string;
@@ -45,28 +44,77 @@ export const processContentInDir = async <T extends object, K>(
 export const getShortDescription = (content: string, maxLength = 20) => {
     const splitByWord = content.split(' ');
     const length = splitByWord.length;
-    return length > maxLength ? splitByWord.slice(0, maxLength).join(' ') + '...' : content;
+    return length > maxLength ? `${splitByWord.slice(0, maxLength).join(' ')}...` : content;
 };
 
 /**
- * Processes the date of an article and returns a string representing the processed date.
- * @param timestamp the timestamp to process
- * @returns a string representing the processed timestamp
+ * Formats a date string into a human-readable format
+ * @param dateString the date string to format
+ * @returns a formatted date string
  */
-export const processArticleDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const monthSmall = date.toLocaleString('default', { month: 'short' });
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${monthSmall} ${day}, ${year}`;
-};
+export function processArticleDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+}
 
 /**
- * Generates a source URL for a content item. The URL is used in meta tags and social media cards.
- * @param sourceUrl the source URL of the content
- * @param contentType the type of content ("blog")
- * @returns a string representing the source URL with the appropriate domain
+ * Generates a source URL for the article
+ * @param filename the filename of the article
+ * @param type the type of article (default is 'blog')
+ * @returns the source URL of the article
  */
-export const generateSourceUrl = (sourceUrl: string, contentType: 'blog') => {
-    return `${GLOBAL.rootUrl}/${contentType}/${sourceUrl}`;
-};
+export function generateSourceUrl(filename: string, type = 'blog'): string {
+    const slug = filename.replace(/\.[^/.]+$/, '');
+    return `/${type}/${slug}`;
+}
+
+/**
+ * Sort posts by date (newest first)
+ * @param posts the posts to sort
+ * @returns the sorted posts
+ */
+export function sortPostsByDate<T extends { data: { timestamp: string } }>(posts: T[]): T[] {
+    return [...posts].sort(
+        (a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime()
+    );
+}
+
+/**
+ * Get related posts based on tags
+ * @param currentPost the current post
+ * @param allPosts all posts
+ * @param count the number of related posts to return (default is 3)
+ * @returns an array of related posts
+ */
+export function getRelatedPosts<T extends { id: string; data: { tags?: string[] } }>(
+    currentPost: T,
+    allPosts: T[],
+    count = 3
+): T[] {
+    const currentTags = currentPost.data.tags || [];
+
+    // No related posts if there are no tags
+    if (currentTags.length === 0) return [];
+
+    return allPosts
+        .filter(post => post.id !== currentPost.id)
+        .filter(post => {
+            const postTags = post.data.tags || [];
+            return postTags.some(tag => currentTags.includes(tag));
+        })
+        .sort((a, b) => {
+            // Count matching tags for relevance
+            const aTags = a.data.tags || [];
+            const bTags = b.data.tags || [];
+
+            const aMatches = aTags.filter(tag => currentTags.includes(tag)).length;
+            const bMatches = bTags.filter(tag => currentTags.includes(tag)).length;
+
+            return bMatches - aMatches;
+        })
+        .slice(0, count);
+}

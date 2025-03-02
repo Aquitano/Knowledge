@@ -2,10 +2,10 @@
 
 export const GLOBAL = {
     // Site metadata
-    username: 'Aquitano',
+    username: 'Thomas Breindl',
     rootUrl: 'https://blog.thomasbreindl.me',
-    shortDescription: 'A Retro-Inspired Theme for Astro',
-    longDescription: 'Zaggonaut is a retro-inspired theme for Astro, built using TypeScript, TailwindCSS, and Astro.',
+    shortDescription: 'Thomas Breindl\'s personal blog',
+    longDescription: 'Thomas Breindl\'s personal blog about web development, tech trends, and other random thoughts.',
 
     // Social media links
     githubProfile: 'https://github.com/aquitano',
@@ -18,13 +18,8 @@ export const GLOBAL = {
     // Common descriptions used throughout the site
     noArticles: 'No featured articles yet.',
 
-    // Blog metadata
-    blogTitle: 'My Thoughts & Takes',
-    blogShortDescription: 'Practical wisdom, unfiltered thoughts, and hot takes.',
-    blogLongDescription: 'Web development, tech trends, and the occasional programming mishap.',
-
     // Profile image
-    profileImage: 'michael-dam-unsplash.webp',
+    profileImage: '1720161159158.jpg',
 
     // Menu items
     menu: {

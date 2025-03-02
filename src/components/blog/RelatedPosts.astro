@@ -1,0 +1,64 @@
+---
+import { processArticleDate, getRelatedPosts, sortPostsByDate } from '../../lib/utils';
+import type { ArticleFrontmatter } from '../../lib/types';
+
+interface Props {
+    currentPost: { id: string; data: ArticleFrontmatter; slug: string };
+    posts: { id: string; data: ArticleFrontmatter; slug: string }[];
+    count?: number;
+}
+
+const { currentPost, posts, count = 3 } = Astro.props;
+
+// Get related posts using utility function
+const relatedPosts = getRelatedPosts(currentPost, posts, count);
+
+// If not enough related posts, add recent posts
+let displayPosts = [...relatedPosts];
+if (displayPosts.length < count) {
+    const recentPosts = sortPostsByDate(
+        posts.filter((post) => post.id !== currentPost.id && !relatedPosts.some((r) => r.id === post.id)),
+    ).slice(0, count - displayPosts.length);
+
+    displayPosts = [...displayPosts, ...recentPosts];
+}
+---
+
+{
+    displayPosts.length > 0 && (
+        <section class="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
+            <h2 class="mb-6 text-xl font-bold">Continue Reading</h2>
+            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {displayPosts.map((post) => (
+                    <a
+                        href={`/blog/${post.slug}`}
+                        class="group flex flex-col rounded-lg p-4 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900"
+                    >
+                        {post.data.cover && (
+                            <div class="mb-3 aspect-video overflow-hidden rounded-md">
+                                <img
+                                    src={post.data.cover}
+                                    alt={post.data.title}
+                                    class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                                />
+                            </div>
+                        )}
+                        <div class="flex flex-col">
+                            <h3 class="group-hover:text-primary font-semibold transition-colors">{post.data.title}</h3>
+                            <time class="mt-1 text-sm text-neutral-500">{processArticleDate(post.data.timestamp)}</time>
+                            {post.data.tags && post.data.tags.length > 0 && (
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    {post.data.tags.slice(0, 2).map((tag: string) => (
+                                        <span class="rounded bg-neutral-100 px-2 py-1 text-xs dark:bg-neutral-800">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </section>
+    )
+}

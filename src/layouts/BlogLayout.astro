@@ -1,36 +1,87 @@
 ---
 import Section from '../components/common/Section.astro';
 import type { ArticleFrontmatter } from '../lib/types';
-import { getShortDescription, processArticleDate, generateSourceUrl } from '../lib/utils';
+import { getShortDescription, generateSourceUrl, processContentInDir } from '../lib/utils';
 import { GLOBAL } from '../lib/variables';
 import type { MarkdownLayoutProps } from 'astro';
-import Prose from '../components/Prose.astro';
 import Layout from './Layout.astro';
+import BlogPost from '../components/blog/BlogPost.astro';
+import RelatedPosts from '../components/blog/RelatedPosts.astro';
 
 type Props = MarkdownLayoutProps<ArticleFrontmatter>;
 
-const { frontmatter } = Astro.props;
+const { frontmatter, headings } = Astro.props;
 const shortDescription = getShortDescription(frontmatter.description);
-const articleDate = processArticleDate(frontmatter.timestamp);
 const sourceUrl = generateSourceUrl(frontmatter.filename, 'blog');
+
+// Get all blog posts for related posts component
+const allBlogPosts = await processContentInDir<ArticleFrontmatter, ArticleFrontmatter>('blog', (data) => {
+    const shortDescription = getShortDescription(data.frontmatter.description);
+    return {
+        title: data.frontmatter.title,
+        description: shortDescription,
+        tags: data.frontmatter.tags,
+        time: data.frontmatter.time,
+        timestamp: data.frontmatter.timestamp,
+        filename: `${data.frontmatter.filename}`,
+        author: data.frontmatter.author,
+        cover: data.frontmatter.cover,
+        avatar: data.frontmatter.avatar,
+    };
+});
 ---
 
-<Layout>
+<Layout title={`${frontmatter.title} • ${GLOBAL.username}`} description={shortDescription}>
     <Fragment slot="head">
         <title>{frontmatter.title} • {GLOBAL.username}</title>
         <meta name="description" content={frontmatter.description} />
+        <meta property="og:type" content="article" />
         <meta property="og:title" content={`${frontmatter.title} • ${GLOBAL.username}`} />
         <meta property="og:description" content={shortDescription} />
-        <meta property="og:image" content={`${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+        <meta property="og:image" content={frontmatter.cover || `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
         <meta property="og:url" content={sourceUrl} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${frontmatter.title} • {GLOBAL.username}`} />
+        <meta name="twitter:title" content={`${frontmatter.title} • ${GLOBAL.username}`} />
         <meta name="twitter:description" content={shortDescription} />
-        <meta name="twitter:image" content={`${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+        <meta name="twitter:image" content={frontmatter.cover || `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
         <meta http-equiv="content-language" content="en" />
         <meta name="language" content="English" />
         <link rel="canonical" href={sourceUrl} />
+
+        {/* Add schema.org metadata */}
+        <script
+            type="application/ld+json"
+            set:html={JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'BlogPosting',
+                mainEntityOfPage: {
+                    '@type': 'WebPage',
+                    '@id': sourceUrl,
+                },
+                headline: frontmatter.title,
+                description: shortDescription,
+                image: frontmatter.cover || `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`,
+                author: {
+                    '@type': 'Person',
+                    name: GLOBAL.username,
+                },
+                publisher: {
+                    '@type': 'Organization',
+                    name: GLOBAL.username,
+                    logo: {
+                        '@type': 'ImageObject',
+                        url: `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`,
+                    },
+                },
+                datePublished: frontmatter.timestamp,
+                dateModified: frontmatter.timestamp,
+            })}
+        />
+
+        {/* Add estimated reading time if available */}
+        {frontmatter.time && <meta property="article:read_time" content={frontmatter.time.toString()} />}
     </Fragment>
+
     <Section class="pt-8">
         <div class="mb-2">
             <a href="/" class="text-primary flex items-center gap-1 hover:underline">
@@ -51,43 +102,17 @@ const sourceUrl = generateSourceUrl(frontmatter.filename, 'blog');
             </a>
         </div>
 
-        <div class="mt-8 mb-8 flex flex-col gap-4">
-            <h1 class="font-display text-3xl leading-normal sm:text-4xl sm:leading-normal">
-                {frontmatter.title}
-            </h1>
-            <div class="flex items-center justify-between">
-                <span class="text-neutral-600 dark:text-neutral-300">{articleDate}</span>
-                <span class="text-neutral-500 dark:text-neutral-400">{frontmatter.time} min read</span>
-            </div>
-
-            {
-                frontmatter.tags && frontmatter.tags.length > 0 && (
-                    <div class="flex flex-wrap gap-2">
-                        {frontmatter.tags.map((tag) => (
-                            <a
-                                href={`/tags/${tag.toLowerCase()}`}
-                                class="hover:bg-primary/20 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary rounded-md bg-neutral-100 px-2 py-1 text-xs transition-colors dark:bg-neutral-800"
-                            >
-                                {tag}
-                            </a>
-                        ))}
-                    </div>
-                )
-            }
-        </div>
-
-        <Prose>
+        <BlogPost frontmatter={frontmatter} headings={headings} url={Astro.url.pathname}>
             <slot />
-        </Prose>
+        </BlogPost>
 
-        <div class="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
-            <p class="text-neutral-600 italic dark:text-neutral-300">
-                Written by {GLOBAL.username}
-            </p>
-            <div class="mt-6 flex gap-4">
-                <a href="/blog" class="text-primary hover:underline">← Back to articles</a>
-                <a href="/" class="text-primary hover:underline">Home</a>
-            </div>
-        </div>
+        <RelatedPosts
+            currentPost={{ id: frontmatter.filename, data: frontmatter, slug: frontmatter.filename }}
+            posts={allBlogPosts.map((post) => ({
+                id: post.filename,
+                data: post,
+                slug: post.filename,
+            }))}
+        />
     </Section>
 </Layout>

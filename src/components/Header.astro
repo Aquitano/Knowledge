@@ -243,7 +243,7 @@ import ThemeToggle from './ThemeToggle.astro';
         const searchContainer = document.getElementById('search-container');
 
         if (searchElement) {
-            const observer = new MutationObserver((mutations) => {
+            const observer = new MutationObserver((_mutations) => {
                 const searchInput = document.querySelector('.pagefind-ui__search-input');
                 if (searchInput && searchContainer && !searchContainer.classList.contains('hidden')) {
                     searchInput.focus();
