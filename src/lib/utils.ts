@@ -78,9 +78,7 @@ export function generateSourceUrl(filename: string, type = 'blog'): string {
  * @returns the sorted posts
  */
 export function sortPostsByDate<T extends { data: { timestamp: string } }>(posts: T[]): T[] {
-    return [...posts].sort(
-        (a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime()
-    );
+    return [...posts].sort((a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime());
 }
 
 /**
@@ -93,7 +91,7 @@ export function sortPostsByDate<T extends { data: { timestamp: string } }>(posts
 export function getRelatedPosts<T extends { id: string; data: { tags?: string[] } }>(
     currentPost: T,
     allPosts: T[],
-    count = 3
+    count = 3,
 ): T[] {
     const currentTags = currentPost.data.tags || [];
 
@@ -101,18 +99,18 @@ export function getRelatedPosts<T extends { id: string; data: { tags?: string[] 
     if (currentTags.length === 0) return [];
 
     return allPosts
-        .filter(post => post.id !== currentPost.id)
-        .filter(post => {
+        .filter((post) => post.id !== currentPost.id)
+        .filter((post) => {
             const postTags = post.data.tags || [];
-            return postTags.some(tag => currentTags.includes(tag));
+            return postTags.some((tag) => currentTags.includes(tag));
         })
         .sort((a, b) => {
             // Count matching tags for relevance
             const aTags = a.data.tags || [];
             const bTags = b.data.tags || [];
 
-            const aMatches = aTags.filter(tag => currentTags.includes(tag)).length;
-            const bMatches = bTags.filter(tag => currentTags.includes(tag)).length;
+            const aMatches = aTags.filter((tag) => currentTags.includes(tag)).length;
+            const bMatches = bTags.filter((tag) => currentTags.includes(tag)).length;
 
             return bMatches - aMatches;
         })

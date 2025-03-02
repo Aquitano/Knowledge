@@ -4,8 +4,8 @@ export const GLOBAL = {
     // Site metadata
     username: 'Thomas Breindl',
     rootUrl: 'https://blog.thomasbreindl.me',
-    shortDescription: 'Thomas Breindl\'s personal blog',
-    longDescription: 'Thomas Breindl\'s personal blog about web development, tech trends, and other random thoughts.',
+    shortDescription: "Thomas Breindl's personal blog",
+    longDescription: "Thomas Breindl's personal blog about web development, tech trends, and other random thoughts.",
 
     // Social media links
     githubProfile: 'https://github.com/aquitano',
