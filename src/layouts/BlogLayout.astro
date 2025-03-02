@@ -38,12 +38,12 @@ const allBlogPosts = await processContentInDir<ArticleFrontmatter, ArticleFrontm
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${frontmatter.title} • ${GLOBAL.username}`} />
         <meta property="og:description" content={shortDescription} />
-        <meta property="og:image" content={frontmatter.cover || `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+        {frontmatter.cover && <meta property="og:image" content={frontmatter.cover} />}
         <meta property="og:url" content={sourceUrl} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${frontmatter.title} • ${GLOBAL.username}`} />
         <meta name="twitter:description" content={shortDescription} />
-        <meta name="twitter:image" content={frontmatter.cover || `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`} />
+        {frontmatter.cover && <meta name="twitter:image" content={frontmatter.cover} />}
         <meta http-equiv="content-language" content="en" />
         <meta name="language" content="English" />
         <link rel="canonical" href={sourceUrl} />
@@ -60,7 +60,7 @@ const allBlogPosts = await processContentInDir<ArticleFrontmatter, ArticleFrontm
                 },
                 headline: frontmatter.title,
                 description: shortDescription,
-                image: frontmatter.cover || `${GLOBAL.rootUrl}/${GLOBAL.profileImage}`,
+                image: frontmatter.cover || '',
                 author: {
                     '@type': 'Person',
                     name: GLOBAL.username,
